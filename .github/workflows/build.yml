@@ -2,12 +2,12 @@ name: Build EXE
 
 on:
   push:
-    branches: [ main, master ]          # 推送到 main 或 master 时自动构建
+    branches: [ main, master ]
   pull_request:
-    branches: [ main, master ]          # 拉取请求时也可选（可删除）
+    branches: [ main, master ]
   tags:
-    - 'v*'                              # 推送标签 v1.0.0 等时构建
-  workflow_dispatch:                    # 保留手动触发按钮
+    - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
