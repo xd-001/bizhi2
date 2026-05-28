@@ -79,11 +79,10 @@ class TrayApp:
         )
     
     def run(self):
-        # 尝试加载图标，如果不存在则创建一个空白图标
         if os.path.exists("icon.ico"):
             image = Image.open("icon.ico")
         else:
-            # 创建一个 64x64 的空白图片
+            # 创建一个空白图标避免崩溃
             image = Image.new('RGB', (64, 64), color='gray')
         self.icon = pystray.Icon("wallpaper_changer", image, "壁纸自动更换", self.create_tray_menu())
         self.icon.run()
