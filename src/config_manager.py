@@ -1,20 +1,21 @@
 import configparser
 import os
-import json
 
 DEFAULT_CONFIG = {
-    "main_folder": os.path.expanduser("~/Pictures/Wallpapers"),
-    "guest_folder": os.path.expanduser("~/Pictures/Wallpapers_Guest"),
-    "switch_interval": 30,          # 秒
-    "wallpaper_style": "fill",      # fill, fit, stretch, tile, center
-    "transition_speed": 0,          # 未实现平滑过渡，占位
-    "smooth_transition": False,
-    "hotkey_modifiers": ["ctrl", "shift"],
-    "hotkey_key": "w",
-    "game_processes": ["game.exe", "eldenring.exe"],  # 示例
-    "monitor_pause": {},             # 格式 {"\\\\.\\DISPLAY1": True, ...}
-    "guest_mode": False,
-    "auto_start": False
+    "general": {
+        "main_folder": os.path.expanduser("~/Pictures/Wallpapers"),
+        "guest_folder": os.path.expanduser("~/Pictures/Wallpapers_Guest"),
+        "switch_interval": "30",
+        "wallpaper_style": "fill",
+        "guest_mode": "False",
+        "auto_start": "False",
+        "game_processes": "['game.exe', 'eldenring.exe']"
+    },
+    "hotkey": {
+        "hotkey_modifiers": "['ctrl', 'shift']",
+        "hotkey_key": "w"
+    },
+    "monitor_pause": {}
 }
 
 class ConfigManager:
@@ -29,7 +30,7 @@ class ConfigManager:
             self.save()
         else:
             self.config.read(self.config_path, encoding='utf-8')
-            # 确保所有键存在
+            # 确保所有默认节和键存在
             for section, items in DEFAULT_CONFIG.items():
                 if section not in self.config:
                     self.config[section] = {}
@@ -51,13 +52,14 @@ class ConfigManager:
     def get(self, section, key, fallback=None):
         try:
             val = self.config[section][key]
-            # 尝试转换类型
+            # 尝试推断类型
             default_val = DEFAULT_CONFIG.get(section, {}).get(key)
             if isinstance(default_val, bool):
                 return val.lower() == 'true'
             if isinstance(default_val, int):
                 return int(val)
-            if isinstance(default_val, list):
+            if isinstance(default_val, list) or (isinstance(default_val, str) and default_val.startswith('[')):
+                # 处理列表字符串
                 return eval(val) if val.startswith('[') else [x.strip() for x in val.strip('[]').split(',') if x]
             return val
         except:
