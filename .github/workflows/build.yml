@@ -2,26 +2,40 @@ name: Build EXE
 
 on:
   push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
+    branches: [ main, master ]          # 推送到 main 或 master 时自动构建
+  pull_request:
+    branches: [ main, master ]          # 拉取请求时也可选（可删除）
+  tags:
+    - 'v*'                              # 推送标签 v1.0.0 等时构建
+  workflow_dispatch:                    # 保留手动触发按钮
 
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
           pip install pyinstaller
-      - name: Build executable
+
+      - name: Build executable (with icon if exists)
+        shell: pwsh
         run: |
-          pyinstaller --onefile --windowed --icon=icon.ico --name="WallpaperChanger" --add-data "icon.ico;." src/main.py
+          if (Test-Path "icon.ico") {
+            pyinstaller --onefile --windowed --icon=icon.ico --name="WallpaperChanger" src/main.py
+          } else {
+            pyinstaller --onefile --windowed --name="WallpaperChanger" src/main.py
+          }
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
